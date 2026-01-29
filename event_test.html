@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Form + PostHog (GET self-submit)</title>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; }
+      fieldset { margin: 16px 0; padding: 12px 16px; }
+      .row { margin: 10px 0; }
+      label { display: inline-block; margin: 6px 0; }
+      .actions { margin-top: 16px; }
+    </style>
+
+    <!-- If PostHog is already loaded on your page/site, remove this stub. -->
+    <script>
+      window.posthog = window.posthog || { capture: function () {} };
+    </script>
+  </head>
+
+  <body>
+    <h1>Example Form</h1>
+
+    <form id="exampleForm" method="GET" action="">
+      <div class="row">
+        <label for="amount"><strong>Amount</strong></label><br />
+        <input type="text" id="amount" name="amount" inputmode="numeric" />
+      </div>
+
+      <fieldset>
+        <legend><strong>User Type</strong></legend>
+
+        <label>
+          <input type="radio" name="user_type" value="Owner operator" />
+          Owner operator
+        </label><br />
+
+        <label>
+          <input type="radio" name="user_type" value="Company Driver" />
+          Company Driver
+        </label><br />
+
+        <label>
+          <input type="radio" name="user_type" value="Dispatcher" />
+          Dispatcher
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend><strong>Product Type</strong></legend>
+
+        <label>
+          <input type="radio" name="product_type" value="fuel" />
+          fuel
+        </label><br />
+
+        <label>
+          <input type="radio" name="product_type" value="gas" />
+          gas
+        </label>
+      </fieldset>
+
+      <div class="actions">
+        <button type="submit">Submit</button>
+      </div>
+    </form>
+
+    <script>
+      (function () {
+        const amountEl = document.getElementById("amount");
+        const qs = new URLSearchParams(window.location.search);
+
+        const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+        // Random amount on initial load; preserve submitted amount after GET
+        if (qs.has("amount")) {
+          amountEl.value = qs.get("amount") ?? "";
+        } else {
+          amountEl.value = String(randInt(10, 500)); // adjust range as desired
+        }
+
+        // Restore radio selections from GET params (so page reflects submitted state)
+        const setRadioFromQS = (name) => {
+          const val = qs.get(name);
+          if (!val) return;
+          document.querySelectorAll(`input[type="radio"][name="${name}"]`)
+            .forEach((r) => (r.checked = (r.value === val)));
+        };
+        setRadioFromQS("user_type");
+        setRadioFromQS("product_type");
+
+        // Fire PostHog event if there's a submission (i.e., URL has expected params)
+        const isSubmission =
+          qs.has("user_type") || qs.has("product_type") || qs.has("amount");
+
+        if (isSubmission && typeof window.posthog?.capture === "function") {
+          const userType = qs.get("user_type") || "";
+          const productType = qs.get("product_type") || "";
+          const amount = qs.get("amount") || "";
+
+          // NOTE: Your prompt’s capture string is missing a quote and has mismatched brackets.
+          // This is the corrected, working call:
+          window.posthog.capture("event_example", {
+            user_type: userType,
+            product_type: productType,
+            amount: amount,
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>
+```
