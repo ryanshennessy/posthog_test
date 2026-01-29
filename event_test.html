@@ -24,6 +24,15 @@
   <body>
     <h1>Test Events Form (submit as much as you want)</h1>
 
+    <div id="confirmation" style="display:none; padding:12px; margin-bottom:16px; border:1px solid #ccc;">
+  <strong>Submission received.</strong>
+  <div>
+    User type: <span id="confirm-user-type"></span><br />
+    Product type: <span id="confirm-product-type"></span><br />
+    Amount: <span id="confirm-amount"></span>
+  </div>
+</div>
+
     <form id="exampleForm" method="GET" action="">
       <div class="row">
         <label for="amount"><strong>Amount</strong></label><br />
@@ -110,6 +119,29 @@
           });
         }
       })();
+
+  (function () {
+    const qs = new URLSearchParams(window.location.search);
+
+    const hasSubmission =
+      qs.has("user_type") &&
+      qs.has("product_type") &&
+      qs.has("amount");
+
+    if (!hasSubmission) return;
+
+    // Populate confirmation values
+    document.getElementById("confirm-user-type").textContent =
+      qs.get("user_type");
+    document.getElementById("confirm-product-type").textContent =
+      qs.get("product_type");
+    document.getElementById("confirm-amount").textContent =
+      qs.get("amount");
+
+    // Show confirmation
+    document.getElementById("confirmation").style.display = "block";
+  })();
+
     </script>
      <p><a href="index.html">back to the homepage</a></p>
   </body>
