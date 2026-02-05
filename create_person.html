@@ -118,8 +118,8 @@
          const randomUserId = String(randomUserIdInt(1, 1_000_000));
           window.posthog.identify(randomUserId,
           {   
-            email: randomUserIdInt + "@fakeemail.com",   
-            name: "user_name_" + randomUserIdInt,
+            email: randomUserId + "@fakeemail.com",   
+            name: "user_name_" + randomUserId,
             product_preference: productType, 
             user_type: userType
           } // optional person properties  
