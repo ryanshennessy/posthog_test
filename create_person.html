@@ -115,10 +115,8 @@
           });
 
 
-          const randomUserIdInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-          
-          window.posthog.identify(  
-          randomUserIdInt,  // unique user identifier  
+         const randomUserId = String(randomUserIdInt(1, 1_000_000));
+          window.posthog.identify(randomUserId,
           {   
             email: randomUserIdInt + "@fakeemail.com",   
             name: "user_name_" + randomUserIdInt,
