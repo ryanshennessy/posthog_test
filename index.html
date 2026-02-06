@@ -8,7 +8,7 @@
     !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group identify setPersonProperties setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroups onFeatureFlags addFeatureFlagsHandler onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
     posthog.init('phc_SdzfND9gYHAsgYSkL0QsMVJdJkWBA5CyXN8PvpEfIsR', {
         api_host: 'https://us.i.posthog.com',
-        defaults: '2025-11-30'
+        person_profiles: 'identified_only'
     })
 </script>
 </head>
@@ -20,27 +20,18 @@
    <p><a href="event_test.html">go to event test</a></p>
   <p><a href="index.html">back to the homepage</a></p>
 
-
-
-
     <h1>Setup user</h1>
 
     <div id="confirmation" style="display:none; padding:12px; margin-bottom:16px; border:1px solid #ccc;">
-  <strong>Submission received.</strong>
-
-</div>
+      <strong>Submission received.</strong>
+    </div>
 
     <form id="exampleForm" method="GET" action="">
-
-
-
       <fieldset>
-        
-          <legend><strong>Name</strong></legend>
-            <input type="text" id="name" name="name" required><br />
+        <legend><strong>Name</strong></legend>
+        <input type="text" id="name" name="name" required><br />
         
         <legend><strong>Role</strong></legend>
-
         <label>
           <input type="radio" name="role" value="Owner operator" />
           Owner operator
@@ -59,12 +50,9 @@
 
       <fieldset>
         <legend><strong>Carrier Size</strong></legend>
-
         <label>
-          <input type="text" name="carrier_size"  />
+          <input type="text" name="carrier_size" />
         </label><br />
-
-    
       </fieldset>
 
       <div class="actions">
@@ -73,54 +61,66 @@
     </form>
 
     <script>
+      console.log("-------------------");
+      console.log("Script started");
+      
       (function () {
-
         const qs = new URLSearchParams(window.location.search);
 
-        // Restore radio selections from GET params (so page reflects submitted state)
-        const setRadioFromQS = (name) => {
-          const val = qs.get(name);
-          if (!val) return;
-          document.querySelectorAll(`input[type="radio"][name="${name}"]`)
-            .forEach((r) => (r.checked = (r.value === val)));
-        };
-        setRadioFromQS("role");
-        setRadioFromQS("carrier_size");
-        setRadioFromQS("name");
+        // Restore form values from GET params
+        const name = qs.get("name") || "";
+        const role = qs.get("role") || "";
+        const carrier_size = qs.get("carrier_size") || "";
 
-        // Fire PostHog event if there's a submission (i.e., URL has expected params)
-        const isSubmission =
-          qs.has("role") || qs.has("carrier_size")|| qs.has("name");
-console.log("Name:", name, "role:", role, "carrier_size",carrier_size);
-        if (isSubmission && typeof window.posthog?.capture === "function") {
-          const role = qs.get("role") || "";
-          const carrier_size = qs.get("carrier_size") || "";
-          const name = qs.get("name") || "";
-      console.log("Name:", name, "role:", role, "carrier_size",carrier_size);
+        // Restore text input
+        if (name) {
+          document.getElementById("name").value = name;
+        }
 
-const randomUserIdInt = (min, max) => {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-};
+        // Restore carrier size
+        const carrierInput = document.querySelector('input[name="carrier_size"]');
+        if (carrier_size && carrierInput) {
+          carrierInput.value = carrier_size;
+        }
 
-         const randomUserId = String(randomUserIdInt(1, 30));
-          window.posthog.identify(randomUserId,
-          {   
+        // Restore radio selections
+        if (role) {
+          document.querySelectorAll('input[type="radio"][name="role"]')
+            .forEach((r) => (r.checked = (r.value === role)));
+        }
+
+        // Fire PostHog event if there's a submission
+        const isSubmission = qs.has("role") || qs.has("carrier_size") || qs.has("name");
+        
+        console.log("Is submission:", isSubmission);
+        console.log("Name:", name, "Role:", role, "Carrier Size:", carrier_size);
+
+        if (isSubmission && typeof window.posthog?.identify === "function") {
+          const randomUserIdInt = (min, max) => {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+          };
+
+          const randomUserId = String(randomUserIdInt(1, 30));
+          
+          console.log("Identifying user:", randomUserId);
+          
+          window.posthog.identify(randomUserId, {   
             email: name + randomUserId + "@fakeemail.com",   
             name: name,
             carrier_size: carrier_size,
             user_role: role
-          } // optional person properties  
-); 
+          });
+          
+          console.log("User identified successfully");
+          console.log("-------------------");
+          console.log("");
+          
+          // Show confirmation
+          document.getElementById("confirmation").style.display = "block";
         }
       })();
-
-  ();
-
-
-
-  
-
+    </script>
 </body>
 </html>
