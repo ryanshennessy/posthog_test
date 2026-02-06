@@ -21,5 +21,106 @@
   <p><a href="index.html">back to the homepage</a></p>
 
 
+
+
+    <h1>Setup user</h1>
+
+    <div id="confirmation" style="display:none; padding:12px; margin-bottom:16px; border:1px solid #ccc;">
+  <strong>Submission received.</strong>
+
+</div>
+
+    <form id="exampleForm" method="GET" action="">
+
+
+
+      <fieldset>
+        
+          <legend><strong>Name</strong></legend>
+            <input type="text" id="name" name="name" required><br />
+        
+        <legend><strong>Role</strong></legend>
+
+        <label>
+          <input type="radio" name="role" value="Owner operator" />
+          Owner operator
+        </label><br />
+
+        <label>
+          <input type="radio" name="role" value="Company Driver" />
+          Company Driver
+        </label><br />
+
+        <label>
+          <input type="radio" name="role" value="Dispatcher" />
+          Dispatcher
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend><strong>Carrier Size</strong></legend>
+
+        <label>
+          <input type="text" name="carrier_size"  />
+        </label><br />
+
+    
+      </fieldset>
+
+      <div class="actions">
+        <button type="submit">Submit</button>
+      </div>
+    </form>
+
+    <script>
+      (function () {
+
+        const qs = new URLSearchParams(window.location.search);
+
+        // Restore radio selections from GET params (so page reflects submitted state)
+        const setRadioFromQS = (name) => {
+          const val = qs.get(name);
+          if (!val) return;
+          document.querySelectorAll(`input[type="radio"][name="${name}"]`)
+            .forEach((r) => (r.checked = (r.value === val)));
+        };
+        setRadioFromQS("role");
+        setRadioFromQS("carrier_size");
+          setRadioFromQS("name");
+
+        // Fire PostHog event if there's a submission (i.e., URL has expected params)
+        const isSubmission =
+          qs.has("role") || qs.has("carrier_size")|| qs.has("name");
+
+        if (isSubmission && typeof window.posthog?.capture === "function") {
+          const role = qs.get("role") || "";
+          const carrier_size = qs.get("carrier_size") || "";
+          const name = qs.get("name") || "";
+      
+
+const randomUserIdInt = (min, max) => {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+         const randomUserId = String(randomUserIdInt(1, 30));
+          window.posthog.identify(randomUserId,
+          {   
+            email: name + randomUserId + "@fakeemail.com",   
+            name: name,
+            carrier_size: carrier_size,
+            user_role: role
+          } // optional person properties  
+); 
+        }
+      })();
+
+  ();
+
+
+
+  
+
 </body>
 </html>
