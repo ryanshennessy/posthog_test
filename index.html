@@ -86,17 +86,17 @@
         };
         setRadioFromQS("role");
         setRadioFromQS("carrier_size");
-          setRadioFromQS("name");
+        setRadioFromQS("name");
 
         // Fire PostHog event if there's a submission (i.e., URL has expected params)
         const isSubmission =
           qs.has("role") || qs.has("carrier_size")|| qs.has("name");
-
+console.log("Name:", name, "role:", role, "carrier_size",carrier_size);
         if (isSubmission && typeof window.posthog?.capture === "function") {
           const role = qs.get("role") || "";
           const carrier_size = qs.get("carrier_size") || "";
           const name = qs.get("name") || "";
-      
+      console.log("Name:", name, "role:", role, "carrier_size",carrier_size);
 
 const randomUserIdInt = (min, max) => {
   min = Math.ceil(min);
